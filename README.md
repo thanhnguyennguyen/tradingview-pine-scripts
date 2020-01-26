@@ -15,3 +15,7 @@ Hope it helps free user enjoy as much functions as possible
     - Select `Alerts` in the right panel
     - Set Alert
     - Select condition: `out BB` to set an alert when the price is out of Bollinger band
+
+### Supported indicators
+  - Bollinger band 50
+  - MA20
