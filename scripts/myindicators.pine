@@ -1,9 +1,11 @@
+//@version=4
+
 // this includes Bollinger band, MA20 into 1 indicator
 // this creates an alert when price is out of bollinger band
 
 // overlay = true: indicator will overlay the candle chart, like MA, BB
 // otherwise, it won't, like MACD
-study(title="BB + MA", overlay=true)
+study(title="BB + MA + RSI", overlay=true)
 
 
 price = input(close)
@@ -21,10 +23,10 @@ upper = sma(close, BB_length) + dev
 lower = sma(close, BB_length) - dev
 plot(upper, title="Upper", color=#2B8A84, linewidth=2)
 plot(lower, title="Lower", color=#2B8A84, linewidth=2)
-plot(sma(close, BB_length), title="Basic", color=fuchsia, linewidth=3)
+plot(sma(close, BB_length), title="Basic", color=color.fuchsia, linewidth=3)
 
 // drawing MA
-plot(sma(close, ma_length), title="MA20", color=aqua, linewidth=3)
+plot(sma(close, ma_length), title="MA20", color=color.aqua, linewidth=3)
 
 // crossover upper line
 c1 = crossover(price, upper)
@@ -32,4 +34,21 @@ c1 = crossover(price, upper)
 // cross under lower line
 c2 = crossunder(price, lower)
 alertcondition(c1 or c2, title='Price is out of BB', message='Price is out of BB')
+
+// attach RSI signal
+rsiPeriod = input(5)
+overSold = input(30)
+overBought = input(70)
+rsival = rsi(close, rsiPeriod)
+pulldown = rsival < overSold
+pullup = rsival > overBought
+crossup() =>
+    crossover(rsival, overSold)
+crossdown() =>
+    crossunder(rsival, overBought)
+plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime)
+plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange)
+plotshape(crossup(), "crossup overSold", style=shape.arrowup, location=location.belowbar, size=size.normal, color=color.lime)
+plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=location.abovebar, size=size.normal, color=color.orange)
+
 
