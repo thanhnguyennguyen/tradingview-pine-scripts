@@ -1,6 +1,9 @@
 // this includes Bollinger band, MA20 into 1 indicator
 // this creates an alert when price is out of bollinger band
-study(title="Nguyen's consolidated indicators", overlay=false)
+
+// overlay = true: indicator will overlay the candle chart, like MA, BB
+// otherwise, it won't, like MACD
+study(title="Nguyen's consolidated indicators", overlay=true)
 
 
 price = input(close)
