@@ -1,6 +1,8 @@
 # tradingview-pine-scripts
 For Free User, tradingview provides only 1 alert and up to 3 indicators.
+
 This consolidates multiple necessary indicators into one. Setup a few helpful alert for traders.
+
 Hope it helps free user enjoy as much functions as possible
 
 ### Usage
