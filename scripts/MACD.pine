@@ -1,0 +1,55 @@
+//@version=4
+study(title="MACD Histogram", shorttitle="MacdHist")
+
+raw = input(close, title="Source")
+fastlen = input(12, title="Fast MA Length", minval=1)
+slowlen = input(26, title="Slow MA Length",  minval=1)
+signallen = input(9, title="Signal MA Length",  minval=1)
+
+useTestPrice = input(defval="NO", title="Use test price instead of current close price?", options=["NO", "% from Test Price Source", "Absolute Price"])
+testPriceSrc = raw
+pricePer = input(0, title="% from Open or Close", type=input.float, step=0.5) / 100
+absPrice = input(0, title="Absolute Price", type=input.float, minval=0)
+
+getTestPrice() =>
+    if useTestPrice == "% from Test Price Source"
+        testPriceSrc * (1 + pricePer)
+    else
+        if useTestPrice == "Absolute Price"
+            absPrice
+        else 
+            -1
+
+testPrice = getTestPrice()
+src = barstate.islast and testPrice >= 0 ? testPrice : raw
+
+hline(0, color=color.purple)
+
+[macd, signal, hist] = macd(src, fastlen, slowlen, signallen)
+
+// Plot colors
+col_grow_above = #26A69A
+col_grow_below = #FFCDD2
+col_fall_above = #B2DFDB
+col_fall_below = #EF5350
+plot(hist * 2, title="Histogram", style=plot.style_area, color=(hist>=0 ? (hist[1] < hist ? col_grow_above : col_fall_above) : (hist[1] < hist ? col_grow_below : col_fall_below) ), transp=10 )
+
+plot(macd, color=change(macd)>=0 ? #0094ff : color.orange, title="MACD", transp=0, linewidth=2, transp=0)
+plot(macd, color=change(macd)>=0 ? #0094ff : color.orange, title="MACD", transp=0, linewidth=3, style=plot.style_circles, transp=0)
+
+plot(signal, color=change(signal)>=0 ? color.maroon : color.olive, title="SIGNAL", transp=0, linewidth=2)
+
+// Draw test price label.
+testPriceText = ((testPrice == raw) ? 'Current price is ' : 'Test price is ') + tostring(testPrice)
+testPriceLabel = label.new(bar_index, na, testPriceText, color=testPrice >= testPriceSrc ? color.green : color.red, textcolor=color.white, style=label.style_labelup)
+label.delete(testPrice < 0 ? testPriceLabel : testPriceLabel[1]) // Delete all if don't use test price, otherwise delete and keep the last one only.
+
+bot(src) => change(src) >=0 and change(src[1]) <= 0 
+top(src) => change(src) <=0 and change(src[1]) >= 0 
+buy = crossover(macd, signal)
+sell = crossunder(macd, signal)
+plotshape(buy, style=shape.arrowup, location=location.bottom, color=color.green)
+plotshape(sell, style=shape.arrowdown, location=location.top, color=color.red)
+bgcolor(buy ? color.new(color.green, 68) : color.new(color.white, 100))
+bgcolor(sell ? color.new(color.red, 68) : color.new(color.white, 100))
+
