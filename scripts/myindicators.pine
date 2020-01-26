@@ -1,5 +1,6 @@
+// this includes Bollinger band, MA20 into 1 indicator
 // this creates an alert when price is out of bollinger band
-study(title="out BB", overlay=false)
+study(title="Nguyen's consolidated indicators", overlay=false)
 
 
 price = input(close)
@@ -10,8 +11,12 @@ BB_sdev = input(2.0, minval=0.001, maxval=50, title="BBX")
 dev = BB_sdev * stdev(close, BB_length)
 upper = sma(close, BB_length) + dev
 lower = sma(close, BB_length) - dev
-p1 = plot(upper, title="Upper", color=#2B8A84)
-p2 = plot(lower, title="Lower", color=#2B8A84)
+plot(upper, title="Upper", color=#2B8A84, linewidth=2)
+plot(lower, title="Lower", color=#2B8A84, linewidth=2)
+plot(sma(price, 50), title="Basic", color=fuchsia, linewidth=3)
+
+// attach MA 20 to chart
+plot(sma(price, 20), title="MA20", color=aqua, linewidth=3)
 
 // crossover upper line
 c1 = crossover(price, upper)
@@ -19,4 +24,3 @@ c1 = crossover(price, upper)
 // cross under lower line
 c2 = crossunder(price, lower)
 alertcondition(c1 or c2, title='Price is out of BB', message='Price is out of BB')
-
