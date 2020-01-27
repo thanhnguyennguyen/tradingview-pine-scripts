@@ -35,7 +35,7 @@ c2 = crossunder(source, lower)
 alertcondition(c1 or c2, title='Price is out of BB', message='Price is out of BB')
 
 // attach RSI signal
-rsiPeriod = input(5)
+rsiPeriod = input(14)
 overSold = input(30)
 overBought = input(70)
 rsival = rsi(source, rsiPeriod)
