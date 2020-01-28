@@ -45,9 +45,21 @@ crossup() =>
     crossover(rsival, overSold)
 crossdown() =>
     crossunder(rsival, overBought)
-plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime)
-plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange)
+plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime, size=size.tiny)
+plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange, size=size.tiny)
 plotshape(crossup(), "crossup overSold", style=shape.arrowup, location=location.belowbar, size=size.normal, color=color.lime)
 plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=location.abovebar, size=size.normal, color=color.orange)
 
+l = label.new(bar_index, na, tostring(close),
+  color=close >= open ? color.green : color.red,
+  textcolor=color.white,
+  style=close >= open ? label.style_labeldown : label.style_labelup,
+  yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+
+label.delete(l[1])
+
+
+
+
+                 
 
