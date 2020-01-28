@@ -33,7 +33,7 @@ plot(sma(source, ma_length), title="MA20", color=color.aqua, linewidth=3)
 
 // cross under lower line
 // c2 = crossunder(source, lower)
-alertcondition((source > upper + OutBBThreshold) or (source < lower - OutBBThreshold), title='Price is out of BB', message='Price is out of BB')
+alertcondition((source > upper + OutBBThreshold) or (source < lower - OutBBThreshold), title='Price is out of BB', message='{{ticker}}: Price is out of BB')
 
 // attach RSI signal
 rsiPeriod = input(14)
@@ -61,6 +61,4 @@ label.delete(l[1])
 
 
 
-
-                 
 
