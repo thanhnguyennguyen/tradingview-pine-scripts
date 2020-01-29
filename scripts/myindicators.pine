@@ -8,10 +8,11 @@
 study(title="BB + MA + RSI", overlay=true)
 
 
-// bolliger band
+// bollinger band
 source = input(close, title="Source", type=input.source)
 BB_length = input(50, minval=1, title="BB Length")
 BB_sdev = input(2.0, minval=0.001, maxval=50, title="StdDev")
+OutBBThreshold = input(50, minval=1, title="Out BB Threshold")
 // MA
 ma_length = input(20, minval=1, title="MA Length")
 
@@ -28,11 +29,11 @@ plot(sma(source, BB_length), title="Basic", color=color.fuchsia, linewidth=3)
 plot(sma(source, ma_length), title="MA20", color=color.aqua, linewidth=3)
 
 // crossover upper line
-c1 = crossover(source, upper)
+// c1 = crossover(source, upper)
 
 // cross under lower line
-c2 = crossunder(source, lower)
-alertcondition(c1 or c2, title='Price is out of BB', message='Price is out of BB')
+// c2 = crossunder(source, lower)
+alertcondition((source > upper + OutBBThreshold) or (source < lower - OutBBThreshold), title='Price is out of BB', message='{{ticker}}: {{close}} Price is out of BB.')
 
 // attach RSI signal
 rsiPeriod = input(14)
@@ -45,9 +46,16 @@ crossup() =>
     crossover(rsival, overSold)
 crossdown() =>
     crossunder(rsival, overBought)
-plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime)
-plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange)
+plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime, size=size.tiny)
+plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange, size=size.tiny)
 plotshape(crossup(), "crossup overSold", style=shape.arrowup, location=location.belowbar, size=size.normal, color=color.lime)
 plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=location.abovebar, size=size.normal, color=color.orange)
 
+l = label.new(bar_index, na, tostring(close),
+  color=close >= open ? color.green : color.red,
+  textcolor=color.white,
+  style=close >= open ? label.style_labeldown : label.style_labelup,
+  yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+
+label.delete(l[1])
 
