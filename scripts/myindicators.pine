@@ -37,8 +37,8 @@ alertcondition((source > upper + OutBBThreshold) or (source < lower - OutBBThres
 
 // attach RSI signal
 rsiPeriod = input(14)
-overSold = input(30)
-overBought = input(70)
+overSold = input(20)
+overBought = input(80)
 rsival = rsi(source, rsiPeriod)
 pulldown = rsival < overSold
 pullup = rsival > overBought
@@ -51,11 +51,11 @@ plotshape(pullup, "overbought", style=shape.triangledown, location=location.abov
 plotshape(crossup(), "crossup overSold", style=shape.arrowup, location=location.belowbar, size=size.normal, color=color.lime)
 plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=location.abovebar, size=size.normal, color=color.orange)
 
-l = label.new(bar_index, na, tostring(close),
-  color=close >= open ? color.green : color.red,
-  textcolor=color.white,
-  style=close >= open ? label.style_labeldown : label.style_labelup,
-  yloc=close >= open ? yloc.abovebar : yloc.belowbar)
-
-label.delete(l[1])
+// l = label.new(bar_index, na, tostring(close),
+//   color=close >= open ? color.green : color.red,
+//   textcolor=color.white,
+//   style=close >= open ? label.style_labeldown : label.style_labelup,
+//   yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+// 
+// label.delete(l[1])
 
