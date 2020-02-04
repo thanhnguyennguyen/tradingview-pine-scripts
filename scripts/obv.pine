@@ -1,0 +1,7 @@
+//@version=4
+study(title="On Balance Volume", shorttitle="OBV", overlay=false)
+
+col = close > open ? color.lime : color.red
+plot(obv, color=col)
+
+
