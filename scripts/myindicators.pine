@@ -1,61 +1,129 @@
 //@version=4
 
+
+
 // this includes Bollinger band, MA20 into 1 indicator
+
 // this creates an alert when price is out of bollinger band
 
+// this creates an alert when golden cross / death cross appears
+
+
 // overlay = true: indicator will overlay the candle chart, like MA, BB
+
 // otherwise, it won't, like MACD
+
 study(title="BB + MA + RSI", overlay=true)
 
 
+
+
+
 // bollinger band
+
 source = input(close, title="Source", type=input.source)
+
 BB_length = input(50, minval=1, title="BB Length")
+
 BB_sdev = input(2.0, minval=0.001, maxval=50, title="StdDev")
+
+// if price < lowerBand - 80 or the price > upperBand + 80 
+// alert is triggered
+// this threshold can be edjusted
 OutBBThreshold = input(80, minval=1, title="Out BB Threshold")
+
 // MA
-ma_length = input(20, minval=1, title="MA Length")
+
+ma_length = input(200, minval=1, title="MA Length")
+
+
+
 
 
 // drawing BB
+
 dev = BB_sdev * stdev(source, BB_length)
+
 upper = sma(source, BB_length) + dev
+
 lower = sma(source, BB_length) - dev
+
 plot(upper, title="Upper", color=#2B8A84, linewidth=2)
+
 plot(lower, title="Lower", color=#2B8A84, linewidth=2)
+
 plot(sma(source, BB_length), title="Basic", color=color.fuchsia, linewidth=3)
 
+
+
 // drawing MA
-plot(sma(source, ma_length), title="MA20", color=color.aqua, linewidth=3)
+
+plot(sma(source, ma_length), title="MA200", color=color.aqua, linewidth=3)
+
+
 
 // crossover upper line
+
 // c1 = crossover(source, upper)
 
+
+
 // cross under lower line
+
 // c2 = crossunder(source, lower)
+
 alertcondition((source > upper + OutBBThreshold) or (source < lower - OutBBThreshold), title='Price is out of BB', message='{{ticker}}: {{close}} Price is out of BB.')
 
+
+
+alertcondition(cross(sma(source, 50), sma(source, 200)), title='MA200 cross MA50', message='{{ticker}}: MA50 cross MA 200')
+
+
+
+
+
 // attach RSI signal
+
 rsiPeriod = input(14)
+
 overSold = input(20)
+
 overBought = input(80)
+
 rsival = rsi(source, rsiPeriod)
+
 pulldown = rsival < overSold
+
 pullup = rsival > overBought
+
 crossup() =>
+
     crossover(rsival, overSold)
+
 crossdown() =>
+
     crossunder(rsival, overBought)
+
 plotshape(pulldown, "oversold", style=shape.triangleup, location=location.belowbar, color=color.lime, size=size.tiny)
+
 plotshape(pullup, "overbought", style=shape.triangledown, location=location.abovebar, color=color.orange, size=size.tiny)
+
 plotshape(crossup(), "crossup overSold", style=shape.arrowup, location=location.belowbar, size=size.normal, color=color.lime)
+
 plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=location.abovebar, size=size.normal, color=color.orange)
 
-// l = label.new(bar_index, na, tostring(close),
-//   color=close >= open ? color.green : color.red,
-//   textcolor=color.white,
-//   style=close >= open ? label.style_labeldown : label.style_labelup,
-//   yloc=close >= open ? yloc.abovebar : yloc.belowbar)
-// 
-// label.delete(l[1])
 
+
+// l = label.new(bar_index, na, tostring(close),
+
+//   color=close >= open ? color.green : color.red,
+
+//   textcolor=color.white,
+
+//   style=close >= open ? label.style_labeldown : label.style_labelup,
+
+//   yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+
+//
+
+// label.delete(l[1])
