@@ -6,7 +6,6 @@
 
 // this creates an alert when price is out of bollinger band
 
-// this creates an alert when golden cross / death cross appears
 
 
 // overlay = true: indicator will overlay the candle chart, like MA, BB
@@ -27,9 +26,6 @@ BB_length = input(50, minval=1, title="BB Length")
 
 BB_sdev = input(2.0, minval=0.001, maxval=50, title="StdDev")
 
-// if price < lowerBand - 80 or the price > upperBand + 80 
-// alert is triggered
-// this threshold can be edjusted
 OutBBThreshold = input(80, minval=1, title="Out BB Threshold")
 
 // MA
@@ -53,6 +49,8 @@ plot(upper, title="Upper", color=#2B8A84, linewidth=2)
 plot(lower, title="Lower", color=#2B8A84, linewidth=2)
 
 plot(sma(source, BB_length), title="Basic", color=color.fuchsia, linewidth=3)
+
+plot(ema(source, 21), color=color.red, linewidth=1)
 
 
 
