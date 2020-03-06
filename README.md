@@ -22,5 +22,6 @@ Hope it helps free user enjoy as much functions as possible
   - Bollinger band 50
   - MA20
   - RSI
+  - EMA21
 
 ![image](https://user-images.githubusercontent.com/17243442/73152603-1ae2cd00-4103-11ea-9eea-c933b0d90b39.png)
