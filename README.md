@@ -14,10 +14,14 @@ Hope it helps free user enjoy as much functions as possible
   - Set up the alert
     - Select `Alerts` in the right panel
     - Set Alert
-    - Select condition: `out BB` to set an alert when the price is out of Bollinger band
+    - Select condition:
+      - `out BB` to set an alert when the price is out of Bollinger band
+      - `MA200 cross MA50` to set an alert when golden cross / death cross appear
 
 ### Supported indicators
   - Bollinger band 50
   - MA20
+  - RSI
+  - EMA21
 
 ![image](https://user-images.githubusercontent.com/17243442/73152603-1ae2cd00-4103-11ea-9eea-c933b0d90b39.png)
