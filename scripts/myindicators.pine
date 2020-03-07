@@ -59,3 +59,13 @@ plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=
 // 
 // label.delete(l[1])
 
+highest = highest(high, ma_length)
+lowest = lowest(low, ma_length)
+l = label.new(bar_index , close, "Length :  "+ tostring(ma_length) +"\nHighest: " + tostring(highest) +"\nLowest : "+tostring(lowest) ,
+      color=color.blue,
+      textcolor=color.white,
+      style=label.style_labeldown,
+      yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+
+label.delete(l[1])
+
