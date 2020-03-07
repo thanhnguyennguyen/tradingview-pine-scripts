@@ -134,3 +134,8 @@ l = label.new(bar_index , close, "Length :  "+ tostring(ma_length) +"\nHighest: 
 label.delete(l[1])
 
 
+// Pump alert
+alertcondition(close*100/open >= 103, title='Pump alert', message='{{ticker}}: Pump')
+// dump alert
+alertcondition(close*100/open <= 97, title='Dump alert', message='{{ticker}}: Dump')
+
