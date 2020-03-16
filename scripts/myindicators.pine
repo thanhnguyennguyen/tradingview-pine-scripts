@@ -125,7 +125,7 @@ plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=
 
 highest = highest(high, ma_length)
 lowest = lowest(low, ma_length)
-l = label.new(bar_index , close, "Period :  "+ tostring(ma_length) +"\nHighest: " + tostring(highest) +"\nLowest : "+tostring(lowest) ,
+l = label.new(bar_index , close,  "RSI :  "+ tostring(int(rsival))  +"\nHighest: " + tostring(highest) +"\nLowest : "+tostring(lowest) ,
       textcolor=color.white,
       color=close >= open ? color.green : color.red,
       style=close >= ema(source, 21) ? label.style_labeldown : label.style_labelup,
