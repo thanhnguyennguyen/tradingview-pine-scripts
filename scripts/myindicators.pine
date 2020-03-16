@@ -128,8 +128,8 @@ lowest = lowest(low, ma_length)
 l = label.new(bar_index , close, "Period :  "+ tostring(ma_length) +"\nHighest: " + tostring(highest) +"\nLowest : "+tostring(lowest) ,
       textcolor=color.white,
       color=close >= open ? color.green : color.red,
-      style=close >= open ? label.style_labeldown : label.style_labelup,
-      yloc=close >= open ? yloc.abovebar : yloc.belowbar)
+      style=close >= ema(source, 21) ? label.style_labeldown : label.style_labelup,
+      yloc=close >= ema(source, 21) ? yloc.abovebar : yloc.belowbar)
 
 label.delete(l[1])
 
