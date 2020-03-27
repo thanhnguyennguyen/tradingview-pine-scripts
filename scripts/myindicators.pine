@@ -28,9 +28,7 @@ BB_sdev = input(2.0, minval=0.001, maxval=50, title="StdDev")
 
 OutBBThreshold = input(80, minval=1, title="Out BB Threshold")
 
-// MA
 
-ma_length = input(200, minval=1, title="MA Length")
 
 
 
@@ -44,19 +42,33 @@ upper = sma(source, BB_length) + dev
 
 lower = sma(source, BB_length) - dev
 
-plot(upper, title="Upper", color=#2B8A84, linewidth=2)
+plot(upper, title="BB Upper", color=#2B8A84, linewidth=2)
 
-plot(lower, title="Lower", color=#2B8A84, linewidth=2)
+plot(lower, title="BB Lower", color=#2B8A84, linewidth=2)
 
-plot(sma(source, BB_length), title="Basic", color=color.fuchsia, linewidth=3)
-
-plot(ema(source, 21), color=color.red, linewidth=1)
+plot(sma(source, BB_length), title="BB Basic (MA50)", color=color.fuchsia, linewidth=3)
 
 
 
-// drawing MA
 
-plot(sma(source, ma_length), title="MA200", color=color.aqua, linewidth=3)
+
+// MA
+
+ema_lengthSlow = input(200, minval=1, title="EMA Slow Length")
+
+ema_lengthMid = input(89, minval=1, title="EMA Mid Length")
+
+ema_lengthFast = input(21, minval=1, title="EMA Fast Length")
+
+
+
+// drawing EMA
+
+plot(ema(source, ema_lengthSlow), title="EMA Slow Length", color=color.aqua, linewidth=2)
+
+plot(ema(source, ema_lengthMid), title="EMA Mid Length", color=color.orange, linewidth=1)
+
+plot(ema(source, ema_lengthFast), title="EMA Fast Length", color=color.red, linewidth=1)
 
 
 
@@ -121,21 +133,39 @@ plotshape(crossdown(), "crossunder overBought", style=shape.arrowdown, location=
 //   style=close >= open ? label.style_labeldown : label.style_labelup,
 
 //   yloc=close >= open ? yloc.abovebar : yloc.belowbar)
-//	label.delete(l[1])
 
-highest = highest(high, ma_length)
-lowest = lowest(low, ma_length)
-l = label.new(bar_index , close,  "RSI :  "+ tostring(int(rsival))  +"\nHighest: " + tostring(highest) +"\nLowest : "+tostring(lowest) ,
+//
+
+// label.delete(l[1])
+
+
+
+highest = highest(high, 200)
+
+lowest = lowest(low, 200)
+
+l = label.new(bar_index , 100, "RSI :  "+ tostring(int(rsival)) +"\nHighest: " + tostring(highest)  +"\nLowest : "+tostring(lowest) ,
+
       textcolor=color.white,
-      color=close >= open ? color.green : color.red,
-      style=close >= ema(source, 21) ? label.style_labeldown : label.style_labelup,
-      yloc=close >= ema(source, 21) ? yloc.abovebar : yloc.belowbar)
+
+      color=color.blue,
+
+      style=close >= ema(source, 9) ? label.style_labeldown : label.style_labelup,
+
+      yloc=close >= ema(source, 9) ? yloc.abovebar : yloc.belowbar)
+
+
 
 label.delete(l[1])
 
 
-// Pump alert
-alertcondition(close*100/open >= 103, title='Pump alert', message='{{ticker}}: Pump')
-// dump alert
-alertcondition(close*100/open <= 97, title='Dump alert', message='{{ticker}}: Dump')
 
+
+
+// Pump alert
+
+alertcondition(close*100/open >= 103, title='Pump alert', message='{{ticker}}: Pump')
+
+// dump alert
+
+alertcondition(close*100/open <= 97, title='Dump alert', message='{{ticker}}: Dump')
