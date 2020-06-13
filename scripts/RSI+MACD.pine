@@ -1,0 +1,86 @@
+//@version=4
+study("RSI + MACD", shorttitle="RSI + MACD", precision=1, overlay=false)
+
+//1. Calculate RSI
+src = input(close, 'RSI Source')
+len = input(14, minval=1, title="RSI Length")
+ob = input(80, "Overbought", input.integer, minval=0, maxval=100)
+os = input(20, "Oversold", input.integer, minval=0, maxval=100)
+RSI = rsi(src, len)
+
+//2. Divergence Framework
+xbars = input(90, "Div lookback period (bars)?", input.integer, minval=1)
+hb = abs(highestbars(RSI, xbars))  // Finds bar with highest value in last X bars
+lb = abs(lowestbars(RSI, xbars))  // Finds bar with lowest value in last X bars
+
+// (2a. Defining variable values, mandatory in Pine 4)
+max = float(na),        min = float(na),        pivoth = bool(na),      divbear = bool(na)  
+max_rsi = float(na),    min_rsi = float(na),    pivotl = bool(na),      divbull = bool(na)
+
+//2b. Identify Divergences --> "If bar with lowest / highest is current bar, use it's value"
+max := hb == 0 ? close : na(max[1]) ? close : max[1]
+max_rsi := hb == 0 ? RSI : na(max_rsi[1]) ? RSI : max_rsi[1]
+min := lb == 0 ? close : na(min[1]) ? close : min[1]
+min_rsi := lb == 0 ? RSI : na(min_rsi[1]) ? RSI : min_rsi[1]
+
+//3. Compare high of current bar being examined with previous bar's high --> "If curr bar high is higher than the max bar high in the lookback window range"
+if close > max  // "if  we have a new high"
+    max := close  // "change variable "max" to use current bar's high value"
+    max
+if RSI > max_rsi  // we have a new high
+    max_rsi := RSI  // change variable "max_rsi" to use current bar's RSI value
+    max_rsi
+if close < min  // we have a new low
+    min := close  // change variable "min" to use current bar's low value
+    min
+if RSI < min_rsi  // we have a new low
+    min_rsi := RSI  // change variable "min_rsi" to use current bar's RSI value
+    min_rsi
+
+//4. Finds pivot point with at least 2 right candles with lower value
+pivoth := max_rsi == max_rsi[2] and max_rsi[2] != max_rsi[3] ? true : na,       pivotl := min_rsi == min_rsi[2] and min_rsi[2] != min_rsi[3] ? true : na
+
+if max[1] > max[2] and RSI[1] < max_rsi and RSI <= RSI[1]
+    divbear := true
+    divbear
+if min[1] < min[2] and RSI[1] > min_rsi and RSI >= RSI[1]
+    divbull := true
+    divbull
+
+//5. Plot
+plot(RSI, "RSI Bear", color=RSI < 70 ? na : color.red, linewidth=3)
+plot(RSI, "RSI Bull", color=RSI > 30 ? na : color.green, linewidth=3)
+plot(RSI, "RSI", color=color.purple, linewidth=1)
+hline(20)
+hline(80)
+
+
+// MACD
+// Getting inputs
+fast_length = input(title="Fast Length", type=input.integer, defval=12)
+slow_length = input(title="Slow Length", type=input.integer, defval=26)
+srcMACD = input(title="Source", type=input.source, defval=close)
+signal_length = input(title="Signal Smoothing", type=input.integer, minval = 1, maxval = 50, defval = 9)
+sma_source = input(title="Simple MA(Oscillator)", type=input.bool, defval=false)
+sma_signal = input(title="Simple MA(Signal Line)", type=input.bool, defval=false)
+
+// Plot colors
+col_grow_above = #26A69A
+col_grow_below = #FFCDD2
+col_fall_above = #B2DFDB
+col_fall_below = #EF5350
+col_macd = #0094ff
+col_signal = #ff6a00
+
+// Calculating
+fast_ma = sma_source ? sma(src, fast_length) : ema(srcMACD, fast_length)
+slow_ma = sma_source ? sma(src, slow_length) : ema(srcMACD, slow_length)
+macd = fast_ma - slow_ma
+signal = sma_signal ? sma(macd, signal_length) : ema(macd, signal_length)
+hist = macd - signal
+
+plot(hist, title="Histogram", style=plot.style_columns, color=(hist>=0 ? (hist[1] < hist ? col_grow_above : col_fall_above) : (hist[1] < hist ? col_grow_below : col_fall_below) ), transp=0 )
+plot(macd, title="MACD", color=col_macd, transp=0)
+plot(signal, title="Signal", color=col_signal, transp=0)
+
+
