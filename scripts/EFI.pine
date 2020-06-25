@@ -1,0 +1,17 @@
+//@version=4
+// EFI Slow (length = 13) to define the long term trend
+// EFI Fast (lenght = 2 ) help to find good entry
+
+
+study("Elder Force Index", shorttitle="EFI", format=format.volume, overlay=false)
+
+
+efiFastlength = input(defval=2, title="Length")
+efiSlowlength = input(defval=13, title="Length")
+src= ((close - close[1]) * volume)
+efiSlow = ema(src, efiSlowlength)
+efiFast = ema(src, efiFastlength)
+plot(efiSlow, color=color.red, linewidth=3)
+plot(efiFast, color=color.green, linewidth=1)
+
+
