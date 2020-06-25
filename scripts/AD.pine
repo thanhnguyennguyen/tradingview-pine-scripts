@@ -1,5 +1,5 @@
 //@version=4
-study("AD", shorttitle="A/D", precision=1, overlay=false)
+study("AD", shorttitle="A/D", format=format.volume, overlay=false)
 
 // A/D
 showSignal = input(title="Show Signal ?", type=input.bool, defval=true)
