@@ -1,0 +1,89 @@
+
+// Parabolic SAR
+study("Parabolic SAR in Pine", overlay = true)
+
+
+psar(start, inc, maximum) =>
+    minTick = 0  //1e-7
+
+    out = float(na)
+    pos = int(na)
+    maxMin = float(na)
+    acc = float(na)
+    prev = float(na)
+    outSet = false
+
+    if bar_index >= 1
+        prev := out[1]
+        outSet := false
+        if bar_index == 1
+            if close > close[1]
+                pos := 1
+                maxMin := max(high, high[1])
+                prev := min(low, low[1])
+                prev
+            else
+                pos := -1
+                maxMin := min(low, low[1])
+                prev := max(high, high[1])
+                prev
+
+            acc := start
+            acc
+        else
+            pos := pos[1]
+            acc := acc[1]
+            maxMin := maxMin[1]
+            maxMin
+
+        if pos == 1
+            if high > maxMin
+                maxMin := high
+                acc := min(acc + inc, maximum)
+                acc
+
+            if low <= prev
+                pos := -1
+                out := maxMin
+                maxMin := low
+                acc := start
+                outSet := true
+                outSet
+        else
+            if low < maxMin
+                maxMin := low
+                acc := min(acc + inc, maximum)
+                acc
+
+            if high >= prev
+                pos := 1
+                out := maxMin
+                maxMin := high
+                acc := start
+                outSet := true
+                outSet
+
+        if not outSet
+            out := prev + acc * (maxMin - prev)
+
+            if pos == 1
+                if out >= low
+                    out := low - minTick
+                    out
+
+            if pos == -1
+                if out <= high
+                    out := high + minTick
+                    out
+
+    out
+
+
+start = input(0.02)
+increment = input(0.02)
+maximum = input(0.2)
+p = psar(start, increment, maximum)
+
+plot(p, style=plot.style_cross, color=color.yellow)
+
+
