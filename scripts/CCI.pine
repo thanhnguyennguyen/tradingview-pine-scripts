@@ -1,0 +1,16 @@
+
+//@version=4
+
+strategy(title="CCI Categy", shorttitle="cci")
+length = input(14, minval=1)
+src = input(close, title="CCI Source")
+
+//cci
+ma = sma(src, length)
+cci = (src - ma) / (0.015 * dev(src, length))
+plot(cci, title="cci", color=color.green, linewidth=2, transp=0)
+band1 = hline(100, color=color.gray, linestyle=hline.style_dashed, linewidth=1)
+band0 = hline(-100, color=color.gray, linestyle=hline.style_dashed, linewidth=1)
+fill(band1, band0, color=#F9E79F)
+
+
