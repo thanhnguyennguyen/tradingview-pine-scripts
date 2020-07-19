@@ -1,5 +1,5 @@
 //@version=4
-study("MACD", shorttitle=" MACD", precision=1, overlay=false)
+study("MACD", shorttitle=" MACD",  overlay=false)
 src = input(close, ' Source')
 
 // MACD

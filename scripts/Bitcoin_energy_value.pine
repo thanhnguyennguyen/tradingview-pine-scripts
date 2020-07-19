@@ -1,0 +1,225 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © capriole_charles
+
+//@version=4
+study("Bitcoin Energy Value Oscillator",overlay=false)
+
+// NOTES
+
+// Bitcoin's Value as determined by Joules of energy input only
+// Calculations per Medium article EV = (Energy-in) / (Supply Growth Rate) * (Fiat Factor)
+// Historic Energy Efficiency data can only be entered monthly due to processing speed constraints of below data load and should be considred an estimate only.
+// Energy Efficiency Data requires manual updating. Currently accurate as of 28 December 2019
+
+// INPUTS
+
+fiat_factor = input(2.0,"Fiat Factor - A Constant Representing the Fiat USD value of a Joule (mult by 10^-15).")
+lost = input(defval=1000000, title="Lost Bitcoins", type=input.integer)
+len = input(20,"Energy Value SMA length (days)")
+
+// DATA & FUNCTIONS
+
+energy_efficiency() =>
+
+    // Average Bitcoin Mining Hardware Energy Efficiency (J/GH)
+    // Uses Bitcoin Mining Hardware Manufacturer Spec Energy Efficiency (J/GH) 
+    // Data Source: Bitcoin Wiki and CBECI
+    
+    d = dayofmonth
+    m = month
+    y = year
+    
+    e = float(na)
+    
+    e := d==15 and m==1 and y==2011? 7946.83220938736 :
+     d==15 and m==2 and y==2011? 7919.41839243041 :
+     d==15 and m==3 and y==2011? 7632.98344069555 :
+     d==15 and m==4 and y==2011? 7481.77369210883 :
+     d==15 and m==5 and y==2011? 7235.83629484419 :
+     d==15 and m==6 and y==2011? 7004.3958189483 :
+     d==15 and m==7 and y==2011? 7424.80653864182 :
+     d==15 and m==8 and y==2011? 7424.80653864182 :
+     d==15 and m==9 and y==2011? 6376.1280731424 :
+     d==15 and m==10 and y==2011? 5194.95515659859 :
+     d==15 and m==11 and y==2011? 4638.22732855883 :
+     d==15 and m==12 and y==2011? 4726.69553622754 :
+     d==15 and m==1 and y==2012? 4804.10521793766 :
+     d==15 and m==2 and y==2012? 4016.5564250286 :
+     d==15 and m==3 and y==2012? 3158.62595648445 :
+     d==15 and m==4 and y==2012? 2803.23990550415 :
+     d==15 and m==5 and y==2012? 2730.11445159239 :
+     d==15 and m==6 and y==2012? 2725.35546233546 :
+     d==15 and m==7 and y==2012? 2725.35546233546 :
+     d==15 and m==8 and y==2012? 2725.35546233546 :
+     d==15 and m==9 and y==2012? 2725.35546233546 :
+     d==15 and m==10 and y==2012? 2725.35546233546 :
+     d==15 and m==11 and y==2012? 2657.33647784477 :
+     d==15 and m==12 and y==2012? 2693.23055902333 :
+     d==15 and m==1 and y==2013? 2567.31168809632 :
+     d==15 and m==2 and y==2013? 2010.50635911607 :
+     d==15 and m==3 and y==2013? 1457.30785659375 :
+     d==15 and m==4 and y==2013? 1189.03510277857 :
+     d==15 and m==5 and y==2013? 1119.03463573955 :
+     d==15 and m==6 and y==2013? 930.746036826081 :
+     d==15 and m==7 and y==2013? 48.3605281757209 :
+     d==15 and m==8 and y==2013? 45.4898976813005 :
+     d==15 and m==9 and y==2013? 43.1908956549566 :
+     d==15 and m==10 and y==2013? 39.9239675902243 :
+     d==15 and m==11 and y==2013? 35.9404616591799 :
+     d==15 and m==12 and y==2013? 32.5475862305335 :
+     d==15 and m==1 and y==2014? 29.1884018211459 :
+     d==15 and m==2 and y==2014? 26.0481147720191 :
+     d==15 and m==3 and y==2014? 16.3168605075398 :
+     d==15 and m==4 and y==2014? 8.89876391490287 :
+     d==15 and m==5 and y==2014? 8.78751371891833 :
+     d==15 and m==6 and y==2014? 8.60464060736008 :
+     d==15 and m==7 and y==2014? 7.81762586226057 :
+     d==15 and m==8 and y==2014? 7.0815417915592 :
+     d==15 and m==9 and y==2014? 6.7522551823933 :
+     d==15 and m==10 and y==2014? 6.27172203804964 :
+     d==15 and m==11 and y==2014? 5.15937443536947 :
+     d==15 and m==12 and y==2014? 4.52574122013518 :
+     d==15 and m==1 and y==2015? 2.85085483477115 :
+     d==15 and m==2 and y==2015? 1.60069849097814 :
+     d==15 and m==3 and y==2015? 1.53698379742013 :
+     d==15 and m==4 and y==2015? 1.4800675401877 :
+     d==15 and m==5 and y==2015? 1.47013611727757 :
+     d==15 and m==6 and y==2015? 1.45622339117475 :
+     d==15 and m==7 and y==2015? 1.32267865317551 :
+     d==15 and m==8 and y==2015? 1.13655134648048 :
+     d==15 and m==9 and y==2015? 0.997126082644854 :
+     d==15 and m==10 and y==2015? 0.888779078658476 :
+     d==15 and m==11 and y==2015? 0.887188142202356 :
+     d==15 and m==12 and y==2015? 0.878722281644594 :
+     d==15 and m==1 and y==2016? 0.855124269986229 :
+     d==15 and m==2 and y==2016? 0.847352818483432 :
+     d==15 and m==3 and y==2016? 0.833440627395937 :
+     d==15 and m==4 and y==2016? 0.785069524089441 :
+     d==15 and m==5 and y==2016? 0.747064212787211 :
+     d==15 and m==6 and y==2016? 0.678588928027975 :
+     d==15 and m==7 and y==2016? 0.445662312187738 :
+     d==15 and m==8 and y==2016? 0.26875945705385 :
+     d==15 and m==9 and y==2016? 0.26875945705385 :
+     d==15 and m==10 and y==2016? 0.26875945705385 :
+     d==15 and m==11 and y==2016? 0.26875945705385 :
+     d==15 and m==12 and y==2016? 0.26875945705385 :
+     d==15 and m==1 and y==2017? 0.26875945705385 :
+     d==15 and m==2 and y==2017? 0.240957775799832 :
+     d==15 and m==3 and y==2017? 0.155416876823419 :
+     d==15 and m==4 and y==2017? 0.140777777777778 :
+     d==15 and m==5 and y==2017? 0.141666666666667 :
+     d==15 and m==6 and y==2017? 0.141666666666667 :
+     d==15 and m==7 and y==2017? 0.140111105161705 :
+     d==15 and m==8 and y==2017? 0.137102226664446 :
+     d==15 and m==9 and y==2017? 0.13439641795264 :
+     d==15 and m==10 and y==2017? 0.131811367043751 :
+     d==15 and m==11 and y==2017? 0.130574258325383 :
+     d==15 and m==12 and y==2017? 0.124543446458589 :
+     d==15 and m==1 and y==2018? 0.123202512380174 :
+     d==15 and m==2 and y==2018? 0.125217779998889 :
+     d==15 and m==3 and y==2018? 0.127373807540674 :
+     d==15 and m==4 and y==2018? 0.130214592703648 :
+     d==15 and m==5 and y==2018? 0.12419969325682 :
+     d==15 and m==6 and y==2018? 0.119652587499354 :
+     d==15 and m==7 and y==2018? 0.118646953462924 :
+     d==15 and m==8 and y==2018? 0.116439991605504 :
+     d==15 and m==9 and y==2018? 0.113189853989414 :
+     d==15 and m==10 and y==2018? 0.107168798944558 :
+     d==15 and m==11 and y==2018? 0.102537771579842 :
+     d==15 and m==12 and y==2018? 0.101373824945235 :
+     d==15 and m==1 and y==2019? 0.0994042769348746 :
+     d==15 and m==2 and y==2019? 0.0982868686868687 :
+     d==15 and m==3 and y==2019? 0.0973011667058178 :
+     d==15 and m==4 and y==2019? 0.0944657760184726 :
+     d==15 and m==5 and y==2019? 0.0912386349930043 :
+     d==15 and m==6 and y==2019? 0.0895277777777777 :
+     d==22 and m==6 and y==2019? 0.0891875 :
+     d==29 and m==6 and y==2019? 0.0888472222222222 :
+     d==6 and m==7 and y==2019? 0.0876990622335891 :
+     d==13 and m==7 and y==2019? 0.0859498231031543 :
+     d==20 and m==7 and y==2019? 0.0842005839727196 :
+     d==27 and m==7 and y==2019? 0.0824513448422848 :
+     d==3 and m==8 and y==2019? 0.0811819203055876 :
+     d==10 and m==8 and y==2019? 0.0808602019892139 :
+     d==17 and m==8 and y==2019? 0.0805384836728401 :
+     d==24 and m==8 and y==2019? 0.0802167653564664 :
+     d==31 and m==8 and y==2019? 0.0797022684742928 :
+     d==7 and m==9 and y==2019? 0.0779249977286423 :
+     d==14 and m==9 and y==2019? 0.0761004322996338 :
+     d==21 and m==9 and y==2019? 0.0742758668706253 :
+     d==28 and m==9 and y==2019? 0.0724513014416168 :
+     d==5 and m==10 and y==2019? 0.0719328264639189 :
+     d==12 and m==10 and y==2019? 0.0717619207683074 :
+     d==19 and m==10 and y==2019? 0.0715910150726958 :
+     d==26 and m==10 and y==2019? 0.0714201093770842 :
+     d==2 and m==11 and y==2019? 0.0709366687280973 :
+     d==9 and m==11 and y==2019? 0.0699111276025562 :
+     d==16 and m==11 and y==2019? 0.0688855864770151 :
+     d==23 and m==11 and y==2019? 0.0678600453514739 :
+     d==30 and m==11 and y==2019? 0.0669541414141414 :
+     d==7 and m==12 and y==2019? 0.0666392649903288 :
+     d==14 and m==12 and y==2019? 0.0663032559638943 :
+     d==21 and m==12 and y==2019? 0.0659672469374597 :
+     d==28 and m==12 and y==2019? 0.0656312379110252 :
+     d==4 and m==1 and y==2020? 0.0651329223081883 :
+     d==11 and m==1 and y==2020? 0.0646368858800774 :
+     d==18 and m==1 and y==2020? 0.0641408494519665 :
+     d==25 and m==1 and y==2020? 0.0636448130238556 :
+     d==1 and m==2 and y==2020? 0.0631837727272728 :
+     d==8 and m==2 and y==2020? 0.0625622045454546 :
+     d==15 and m==2 and y==2020? 0.0619406363636364 :
+     d==22 and m==2 and y==2020? 0.0613190681818182 :
+     d==29 and m==2 and y==2020? 0.0606975000000001 :
+     d==7 and m==3 and y==2020? 0.0604352222222223 :
+     d==14 and m==3 and y==2020? 0.0601292314814815 :
+     d==21 and m==3 and y==2020? 0.0598232407407408 :
+     d==28 and m==3 and y==2020? 0.05951725 :
+     d==4 and m==4 and y==2020? 0.0592270831975671 :
+     d==11 and m==4 and y==2020? 0.0588888087867927 :
+     d==18 and m==4 and y==2020? 0.0585505343760183 :
+     d==25 and m==4 and y==2020? 0.0582122599652439 :
+     d==2 and m==5 and y==2020? 0.0578027140151515 :
+     d==9 and m==5 and y==2020? 0.0568671666666667 :
+     d==11 and m==5 and y==2020? 0.0565998674242424 : na
+    e
+
+energy_value(hr_live) =>
+
+    // HR on TV only has "yesterday's" value --> use "lookahead_on" when running live (on current bar), to pull forward yesterdays data
+    hr_hist = security("QUANDL:BCHAIN/HRATE", "D", close,gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+    stock = security("QUANDL:BCHAIN/TOTBC", "D", close,gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+    stock12m = security("QUANDL:BCHAIN/TOTBC", "D", close[365],gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+    
+    HR_raw = float(na)
+    HR_raw := barstate.isrealtime ? hr_live : hr_hist 
+    
+    energy_eff = float(na)
+    energy_eff := na(energy_efficiency()) ? energy_eff[1] : energy_efficiency()
+    energy_in = (HR_raw * 1000) * energy_eff
+    
+    flow = stock - stock12m
+    SF = (stock-lost)/flow
+    seconds_per_year = 365.25*24*60*60
+    supply_growth_rate = (1.0/SF)/seconds_per_year // supply growth rate per second (inflation rate)
+    
+    energy_value = (energy_in/supply_growth_rate)*(fiat_factor/pow(10,15))
+    energy_value
+    
+// CALCULATE
+
+ev = security("QUANDL:BCHAIN/HRATE", "D", energy_value(close),gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+//ev_sma = security("QUANDL:BCHAIN/HRATE", "D", sma(energy_value(close),len),gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+
+osc = (close/ev -1.0)*100
+
+
+
+// PLOT
+zero = plot(0.0,color=color.gray,linewidth=3,transp=50,title="zero")
+neg_forty = plot(-40,color=color.green,linewidth=1,transp=50,title="40% discount")
+pos_forty = plot(40,color=color.red,linewidth=1,transp=50,title="40% premium")
+
+clr = osc < 0 ? color.green : color.red
+oscillator = plot(osc,color=clr,linewidth=1,title="Energy Value Oscillator")
+
+
