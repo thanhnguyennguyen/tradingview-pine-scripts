@@ -1,0 +1,29 @@
+//@version=4
+study("RSI Divergence", shorttitle="RSI Div", precision=1, overlay=false)
+
+// Calculate RSI
+src = input(close, 'RSI Source')
+len = input(14, minval=1, title="RSI Length")
+ob = input(80 ,"Overbought", input.integer, minval=0, maxval=100)
+os = input(20, "Oversold", input.integer, minval=0, maxval=100)
+RSI = rsi(src, len)
+//5. Plot
+plot(RSI, "RSI Bear", color=RSI < 80 ? na : color.red, linewidth=3)
+plot(RSI, "RSI Bull", color=RSI > 20 ? na : color.green, linewidth=3)
+plot(RSI, "RSI", color=color.purple, linewidth=1)
+
+
+source = hlc3
+length = input(14, minval=1), lower = input(20, minval=0, maxval=50), upper = input(80, minval=50, maxval=100)
+
+// MFI
+upper_s = sum(volume * (change(source) <= 0 ? 0 : source), length)
+lower_s = sum(volume * (change(source) >= 0 ? 0 : source), length)
+mf = rsi(upper_s, lower_s)
+mfp = plot(mf,"MFI", color=color.yellow, linewidth=1)
+top = hline(upper, color=color.gray, linewidth=1, editable=false)
+bottom = hline(lower, color=color.gray, linewidth=1, editable=false)
+hline(0, color=color.black, editable=false)
+hline(100, color=color.black, editable=false)
+hline(50, color=color.green, editable=false)
+
