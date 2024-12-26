@@ -1,0 +1,52 @@
+//@version=5
+indicator("ADX and RSI", overlay=false)
+
+// ADX Configuration
+adxLength = input.int(14, title="ADX Length", minval=1)
+
+// Calculate True Range (TR)
+TR = math.max(math.max(high - low, math.abs(high - close[1])), math.abs(low - close[1]))
+
+// Directional Movements
+plusDM = (high - high[1] > low[1] - low) and (high - high[1] > 0) ? high - high[1] : 0
+minusDM = (low[1] - low > high - high[1]) and (low[1] - low > 0) ? low[1] - low : 0
+
+// Wilder's Smoothing Function
+wilder_smooth(src, length) =>
+    var float result = na
+    result := na(result[1]) ? ta.sma(src, length) : (result[1] * (length - 1) + src) / length
+    result
+
+// Smooth the Directional Movements using Wilder's Smoothing
+smoothedTR = wilder_smooth(TR, adxLength)
+smoothedPlusDM = wilder_smooth(plusDM, adxLength)
+smoothedMinusDM = wilder_smooth(minusDM, adxLength)
+
+// Calculate the +DI, -DI, and ADX using Wilder's smoothing
+plusDI = 100 * smoothedPlusDM / smoothedTR
+minusDI = 100 * smoothedMinusDM / smoothedTR
+
+// Calculate DX (Directional Movement Index)
+DX = 100 * math.abs(plusDI - minusDI) / (plusDI + minusDI)
+
+// Calculate the ADX (Average Directional Index) by smoothing the DX value
+ADX = wilder_smooth(DX, adxLength)
+
+// Plotting ADX and DI in the first pane (default pane)
+plot(ADX, color=color.blue, title="ADX", linewidth=2)
+plot(plusDI, color=color.green, title="+DI", linewidth=1)
+plot(minusDI, color=color.red, title="-DI", linewidth=1)
+hline(25, "Trend Strength Threshold", color=color.gray, linestyle=hline.style_dotted)
+
+// RSI Configuration
+rsiLength = input.int(14, title="RSI Length", minval=1)
+rsiSource = input.source(close, title="RSI Source")
+
+// Calculate RSI
+rsiValue = ta.rsi(rsiSource, rsiLength)
+
+// Plotting RSI in the second pane
+rsiColor = rsiValue >= 70 ? color.red : (rsiValue <= 30 ? color.green : color.purple)
+plot(rsiValue, color=rsiColor, title="RSI", linewidth=2)
+hline(70, "Overbought", color=color.red, linestyle=hline.style_dotted)
+hline(30, "Oversold", color=color.green, linestyle=hline.style_dotted)
